@@ -40,6 +40,12 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
             + " :" + verifyOnetimeTokenReply.result().body().toString();
 
           // TODO: place proxy call here
+          // if 5xx error returns, DO NOT UPDATE onetime token!!!!
+          // because when you update with error reeturn, user client will get "error result" with current token.
+
+          // call proxy
+
+          // check result
 
           // update onetime token with proxy response.
           eventBus.request(ApiguardEventBusNames.ONETIME_TOKEN_UPDATE.value(), responseBodyString, updateOnetimeTokenReply -> {

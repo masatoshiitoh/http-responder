@@ -32,8 +32,6 @@ public class OnetimeTokenVerticle extends AbstractVerticle {
 
   private Handler<Message<Object>> oneTimeTokenResetHandler() {
     return messageHandler -> {
-      System.out.println("Requested oneTimeTokenResetHandler message: " + messageHandler.body());
-
       RedisAPI redis = RedisAPI.api(redisClient);
       redis.get("lastAccess", res -> {
         if (res.failed()) throw new RuntimeException("oneTimeTokenResetHandler: redis get failed.");
@@ -56,8 +54,6 @@ public class OnetimeTokenVerticle extends AbstractVerticle {
 
   private Handler<Message<Object>> oneTimeTokenVerifyHandler() {
     return messageHandler -> {
-      System.out.println("Requested oneTimeTokenVerifyHandler message: " + messageHandler.body());
-
       RedisAPI redis = RedisAPI.api(redisClient);
       redis.get("lastAccess", res -> {
         if (res.failed()) throw new RuntimeException("oneTimeTokenVerifyHandler: redis get failed.");
@@ -81,8 +77,6 @@ public class OnetimeTokenVerticle extends AbstractVerticle {
 
   private Handler<Message<Object>> oneTimeTokenUpdateHandler() {
     return messageHandler -> {
-      System.out.println("Requested oneTimeTokenUpdateHandler message: " + messageHandler.body());
-
       RedisAPI redis = RedisAPI.api(redisClient);
       redis.get("lastAccess", res -> {
         if (res.failed()) throw new RuntimeException("oneTimeTokenUpdateHandler: redis get failed.");
