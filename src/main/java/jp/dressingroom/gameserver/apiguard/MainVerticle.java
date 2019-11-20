@@ -1,19 +1,8 @@
 package jp.dressingroom.gameserver.apiguard;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.redis.RedisClient;
-import io.vertx.redis.RedisOptions;
-import io.vertx.redis.client.Redis;
-import io.vertx.redis.client.RedisAPI;
-import io.vertx.redis.client.ResponseType;
 
-import static io.netty.handler.codec.AsciiHeadersEncoder.NewlineType.CRLF;
 
 public class MainVerticle extends AbstractVerticle {
 

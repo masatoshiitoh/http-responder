@@ -102,64 +102,6 @@ public class OnetimeTokenVerticle extends AbstractVerticle {
       });
     };
   }
-
-
-
-/*
-  private Handler<RoutingContext> getTopRoutingHandler() {
-    return routingContext -> {
-
-      EventBus eventBus = vertx.eventBus();
-      String message = routingContext.request().getParam("id");
-      eventBus.request(ApiguardEventBusNames.DECRYPT.value(), message, reply -> {
-        if (reply.succeeded()) {
-          String replyMessage = reply.result().body().toString();
-          RedisAPI redis = RedisAPI.api(redisClient);
-          redis.get("lastAccess", res -> {
-            if (res.succeeded()) {
-              String lastAccessString;
-              if (res.result() != null) {
-                lastAccessString = res.result().toString();
-                System.out.println("lastAccess:" + lastAccessString);
-              } else {
-                lastAccessString = "0";
-                System.out.println("lastAccess is null -> set zero");
-              }
-
-              redis.setex("lastAccess", "10", Long.toString(System.currentTimeMillis()), setres -> {
-                if (setres.succeeded()) {
-                  // This handler will be called for every request
-                  HttpServerResponse response = routingContext.response();
-                  response.putHeader("content-type", "text/plain");
-                  // Write to the response and end it
-                  response.end("Hello World from Vert.x-Web! :" + lastAccessString);
-                } else {
-                  throw new RuntimeException("redis setex failed.");
-                }
-              });
-
-            } else {
-              throw new RuntimeException("redis get failed.");
-            }
-          });
-        } else {
-          throw new RuntimeException("eventbus decrypt request failed.");
-        }
-      });
-    };
-  }
-
-  private Handler<RoutingContext> getLoginRoutingHandler() {
-    return routingContext -> {
-      // This handler will be called for every request
-      HttpServerResponse response = routingContext.response();
-      response.putHeader("content-type", "text/plain");
-
-      // Write to the response and end it
-      response.end("Login Handler from Vert.x-Web!");
-    };
-  }
-*/
 }
 
 

@@ -8,11 +8,6 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.redis.RedisOptions;
-import io.vertx.redis.client.Redis;
-import io.vertx.redis.client.RedisAPI;
-
-import java.util.List;
 
 public class HttpReverseProxyVerticle extends AbstractVerticle {
   @Override
@@ -39,25 +34,34 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
         // verify token
         String decryptedMessage = decrypted.result().body().toString();
         eventBus.request(ApiguardEventBusNames.ONETIME_TOKEN_VERIFY.value(), decryptedMessage, verifyOnetimeTokenReply ->{
-          if (verifyOnetimeTokenReply.failed()) throw new RuntimeException("eventbus onetimeToken request failed.");
+          if (verifyOnetimeTokenReply.failed()) throw new RuntimeException("eventbus verifyOnetimeToken request failed.");
 
-          String lastAccessString = verifyOnetimeTokenReply.result().body().toString();
-          String responseBodyString = "Hello World from Vert.x-Web! id=" + requestParamId + " :" + lastAccessString;
+          String responseBodyString = "Hello World from Vert.x-Web! id=" + requestParamId
+            + " :" + verifyOnetimeTokenReply.result().body().toString();
 
-          // encrypt response body payload.
-          eventBus.request(ApiguardEventBusNames.ENCRYPT.value(), responseBodyString, encrypted -> {
-            if (encrypted.failed()) throw new RuntimeException("eventbus encrypt request failed.");
+          // TODO: place proxy call here
 
-            // build response body
-            HttpServerResponse response = routingContext.response();
-            response.putHeader("content-type", "text/plain");
-            // Write to the response and end it
-            response.end(encrypted.result().body().toString());
+          // update onetime token with proxy response.
+          eventBus.request(ApiguardEventBusNames.ONETIME_TOKEN_UPDATE.value(), responseBodyString, updateOnetimeTokenReply -> {
+            if (updateOnetimeTokenReply.failed()) throw new RuntimeException("eventbus updateOnetimeToken request failed.");
+
+            String updatedResponseBodyString = updateOnetimeTokenReply.result().body().toString();
+            // encrypt proxy response body payload.
+            eventBus.request(ApiguardEventBusNames.ENCRYPT.value(), updatedResponseBodyString, encrypted -> {
+              if (encrypted.failed()) throw new RuntimeException("eventbus encrypt request failed.");
+
+              // build response body
+              HttpServerResponse response = routingContext.response();
+              response.putHeader("content-type", "text/plain");
+              // Write to the response and end it
+              response.end(encrypted.result().body().toString());
+            });
           });
         });
       });
     };
   }
+
 
   private Handler<RoutingContext> getLoginRoutingHandler() {
     return routingContext -> {
