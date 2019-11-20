@@ -24,7 +24,7 @@ public class MainVerticle extends AbstractVerticle {
     vertx.deployVerticle("jp.dressingroom.gameserver.apiguard.OnetimeTokenVerticle");
 
     // delay parameter 5000 means 5,000 milliseconds( = 5sec).
-    vertx.setPeriodic(5000, id -> {System.out.println("timer fired on MainVerticle");});
+    // vertx.setPeriodic(5000, id -> {System.out.println("timer fired on MainVerticle");});
 
   }
 

@@ -30,23 +30,31 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
     return routingContext -> {
 
       EventBus eventBus = vertx.eventBus();
-      String message = routingContext.request().getParam("id");
-      eventBus.request(ApiguardEventBusNames.DECRYPT.value(), message, reply -> {
-        if (reply.succeeded()) {
-          String replyMessage = reply.result().body().toString();
-          String lastAccessString;
-          lastAccessString = replyMessage;
-          System.out.println("lastAccess:" + lastAccessString);
 
-          // This handler will be called for every request
-          HttpServerResponse response = routingContext.response();
-          response.putHeader("content-type", "text/plain");
-          // Write to the response and end it
-          response.end("Hello World from Vert.x-Web! id=" + message + " :" + lastAccessString);
+      String requestParamId = routingContext.request().getParam("id");
 
-        } else {
-          throw new RuntimeException("eventbus decrypt request failed.");
-        }
+      eventBus.request(ApiguardEventBusNames.DECRYPT.value(), requestParamId, decrypted -> {
+        if (decrypted.failed()) throw new RuntimeException("eventbus decrypt request failed.");
+
+        // verify token
+        String decryptedMessage = decrypted.result().body().toString();
+        eventBus.request(ApiguardEventBusNames.ONETIME_TOKEN_VERIFY.value(), decryptedMessage, verifyOnetimeTokenReply ->{
+          if (verifyOnetimeTokenReply.failed()) throw new RuntimeException("eventbus onetimeToken request failed.");
+
+          String lastAccessString = verifyOnetimeTokenReply.result().body().toString();
+          String responseBodyString = "Hello World from Vert.x-Web! id=" + requestParamId + " :" + lastAccessString;
+
+          // encrypt response body payload.
+          eventBus.request(ApiguardEventBusNames.ENCRYPT.value(), responseBodyString, encrypted -> {
+            if (encrypted.failed()) throw new RuntimeException("eventbus encrypt request failed.");
+
+            // build response body
+            HttpServerResponse response = routingContext.response();
+            response.putHeader("content-type", "text/plain");
+            // Write to the response and end it
+            response.end(encrypted.result().body().toString());
+          });
+        });
       });
     };
   }
@@ -57,19 +65,16 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
 
       EventBus eventBus = vertx.eventBus();
       String message = routingContext.request().getParam("id");
-      eventBus.request(ApiguardEventBusNames.ONETIME_TOKEN.value(), message, loginOnetimeReply -> {
-        if (loginOnetimeReply.succeeded()) {
-          HttpServerResponse response = routingContext.response();
-          response.putHeader("content-type", "text/plain");
+      eventBus.request(ApiguardEventBusNames.ONETIME_TOKEN_RESET.value(), message, resetOnetimeTokenReply -> {
+        // guard
+        if (resetOnetimeTokenReply.failed()) throw new RuntimeException("eventbus resetOnetimeToken request failed.");
 
-          // Write to the response and end it
-          response.end("Login Handler from Vert.x-Web!");
-        } else {
-          throw new RuntimeException("eventbus onetimeToken request failed.");
-        }
+        // build response body
+        HttpServerResponse response = routingContext.response();
+        response.putHeader("content-type", "text/plain");
+        // Write to the response and end it
+        response.end("Login Handler from Vert.x-Web!");
         });
-
-
     };
   }
 }

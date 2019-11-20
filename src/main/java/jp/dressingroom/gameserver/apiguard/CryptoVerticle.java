@@ -18,16 +18,14 @@ public class CryptoVerticle extends AbstractVerticle {
   private Handler<Message<Object>> getDecryptMessageHandler() {
     // this is decrypter
     return messageHandler -> {
-      System.out.println("Requested decrypt message: " + messageHandler.body());
-      messageHandler.reply("Requested decrypt message: " + messageHandler.body());
+      messageHandler.reply("Decrypted => " + messageHandler.body());
     };
   }
 
   private Handler<Message<Object>> getEncryptMessageHandler() {
     // this is encrypter
     return messageHandler -> {
-      System.out.println("Requested encrypt message: " + messageHandler.body());
-      messageHandler.reply("Requested encrypt message: " + messageHandler.body());
+      messageHandler.reply("Encrypted => " + messageHandler.body());
     };
   }
 }
