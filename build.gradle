@@ -28,7 +28,6 @@ def doOnChange = './gradlew classes'
 
 dependencies {
   implementation "io.vertx:vertx-web:$vertxVersion"
-  implementation "io.vertx:vertx-jca:$vertxVersion"
   implementation "io.vertx:vertx-dropwizard-metrics:$vertxVersion"
   implementation "io.vertx:vertx-redis-client:$vertxVersion"
 
