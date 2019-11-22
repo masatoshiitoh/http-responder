@@ -13,6 +13,7 @@ public class CryptoVerticle extends AbstractVerticle {
 
     eventBus.consumer(ApiguardEventBusNames.ENCRYPT.value(), getEncryptMessageHandler());
     eventBus.consumer(ApiguardEventBusNames.DECRYPT.value(), getDecryptMessageHandler());
+    startPromise.complete();
   }
 
   private Handler<Message<Object>> getDecryptMessageHandler() {
@@ -28,4 +29,6 @@ public class CryptoVerticle extends AbstractVerticle {
       messageHandler.reply("Encrypted => " + messageHandler.body());
     };
   }
+
+
 }
