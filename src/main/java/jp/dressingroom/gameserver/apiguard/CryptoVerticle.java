@@ -17,7 +17,7 @@ import java.util.Base64;
  * handle encoded request payload.
  * crypt: AES, 256bit, CBC, preset IV, pre shared key.
  * user must define IV and pre shared key to users server and client.
- * 
+ *
  */
 public class CryptoVerticle extends AbstractVerticle {
   private Cipher encryptor;
