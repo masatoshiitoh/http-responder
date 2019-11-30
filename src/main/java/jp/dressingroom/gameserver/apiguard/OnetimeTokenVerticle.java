@@ -10,7 +10,6 @@ import io.vertx.redis.client.Redis;
 import io.vertx.redis.client.RedisAPI;
 
 public class OnetimeTokenVerticle extends AbstractVerticle {
-  private RedisOptions redisOptions = new RedisOptions();
   private Redis redisClient;
 
   @Override

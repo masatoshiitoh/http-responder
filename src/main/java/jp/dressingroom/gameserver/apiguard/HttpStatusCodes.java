@@ -8,7 +8,7 @@ public enum HttpStatusCodes {
 
   private final Integer status;
 
-  private HttpStatusCodes(final Integer status) {
+  HttpStatusCodes(final Integer status) {
     this.status = status;
   }
 

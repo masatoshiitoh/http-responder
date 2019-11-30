@@ -7,10 +7,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 
 import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
-import java.security.AlgorithmParameters;
 import java.security.Key;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.Base64;
 
 /**

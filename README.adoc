@@ -4,6 +4,35 @@ image:https://img.shields.io/badge/vert.x-3.8.3-purple.svg[link="https://vertx.i
 
 This application was generated using http://start.vertx.io
 
+== What is this?
+
+Apiguard is a HTTP proxy to add following features to your web api servers.
+
+* Guard with Onetime token
+* Payload encryption and decryption
+
+=== Guard with Onetime token
+
+
+=== Payload encryption and decryption
+
+
+
+- requirement
+
+Redis : response cache
+
+
+
+==
+
+
+
+== How to try
+
+
+
+
 == Building
 
 To launch your tests:
@@ -20,6 +49,8 @@ To run your application:
 ```
 ./gradlew clean run
 ```
+
+
 
 == Help
 

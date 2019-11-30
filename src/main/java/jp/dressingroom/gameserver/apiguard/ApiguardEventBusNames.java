@@ -11,7 +11,7 @@ public enum ApiguardEventBusNames {
 
   private final String text;
 
-  private ApiguardEventBusNames(final String text) {
+  ApiguardEventBusNames(final String text) {
     this.text = text;
   }
 
