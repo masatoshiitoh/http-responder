@@ -1,4 +1,4 @@
-package jp.dressingroom.gameserver.apiguard;
+package jp.dressingroom.gameserver.apiguard.verticle;
 
 public enum ApiguardEventBusNames {
   ENCRYPT("payload.encrypt"),
@@ -7,6 +7,9 @@ public enum ApiguardEventBusNames {
   ONETIME_TOKEN_RESET("onetimeToken.reset"),
   ONETIME_TOKEN_VERIFY("onetimeToken.verify"),
   ONETIME_TOKEN_UPDATE("onetimeToken.update"),
+
+  REDIS_SETEX("redis.setes"),
+  REDIS_GET("redis.get"),
   ;
 
   private final String text;

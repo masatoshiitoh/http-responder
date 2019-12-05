@@ -1,17 +1,17 @@
 package jp.dressingroom.gameserver.apiguard.entity;
 
-public class Payload {
+public class UserId {
   String value;
+
+  public UserId(String value) {
+    this.value = value;
+  }
 
   public String getValue() {
     return value;
   }
 
   public void setValue(String value) {
-    this.value = value;
-  }
-
-  public Payload(String value) {
     this.value = value;
   }
 }

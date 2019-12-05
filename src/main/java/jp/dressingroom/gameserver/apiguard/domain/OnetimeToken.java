@@ -1,11 +1,18 @@
 package jp.dressingroom.gameserver.apiguard.domain;
 
-import jp.dressingroom.gameserver.apiguard.entity.Payload;
-import jp.dressingroom.gameserver.apiguard.entity.Token;
-import jp.dressingroom.gameserver.apiguard.entity.Uuid;
+import io.vertx.core.eventbus.EventBus;
+import jp.dressingroom.gameserver.apiguard.entity.*;
 
 public interface OnetimeToken {
-  int resetNewToken(Uuid uuid);
-  int lookupToken(Uuid uuid, Token token);
-  int updateToken(Uuid uuid, Token token, Payload payload);
+
+  void registerResetNewTokenHandler(EventBus eventBus);
+  void resetNewToken(EventBus eventBus, UserId userId);
+
+  void registerLookupTokenHandler(EventBus eventBus);
+  void lookupToken(EventBus eventBus, RequestedToken token);
+
+  void registerUpdateToken(EventBus eventBus);
+  void updateToken(EventBus eventBus, RequestedPayload payload);
 }
+
+

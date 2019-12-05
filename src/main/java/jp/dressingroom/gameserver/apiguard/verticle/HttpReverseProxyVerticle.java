@@ -1,6 +1,5 @@
-package jp.dressingroom.gameserver.apiguard;
+package jp.dressingroom.gameserver.apiguard.verticle;
 
-import io.netty.handler.codec.http.HttpStatusClass;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -9,13 +8,19 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.rxjava.core.Vertx;
+import io.vertx.rxjava.ext.web.client.WebClient;
 
 public class HttpReverseProxyVerticle extends AbstractVerticle {
+  WebClient client;
+
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
     // you must prepare redis to start MainVerticle
     HttpServer server = vertx.createHttpServer();
+    client = WebClient.create((Vertx) vertx);
+
     Router router = Router.router(vertx);
     router.get("/").handler(getTopRoutingHandler());
     router.get("/login").handler(getLoginRoutingHandler());
@@ -23,6 +28,13 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
     server.requestHandler(router).listen(8888);
 
     startPromise.complete();
+  }
+
+  private Handler<RoutingContext> getSimpleProxyHandler() {
+    return routingContext -> {
+
+
+    };
   }
 
   private Handler<RoutingContext> getTopRoutingHandler() {

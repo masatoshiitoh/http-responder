@@ -1,4 +1,4 @@
-package jp.dressingroom.gameserver.apiguard;
+package jp.dressingroom.gameserver.apiguard.verticle;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
