@@ -3,13 +3,16 @@ package jp.dressingroom.gameserver.apiguard.verticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.rxjava.core.Vertx;
-import io.vertx.rxjava.ext.web.client.WebClient;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
+
 
 public class HttpReverseProxyVerticle extends AbstractVerticle {
   WebClient client;
@@ -25,6 +28,7 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
     router.get("/").handler(getTopRoutingHandler());
     router.get("/login").handler(getLoginRoutingHandler());
     router.post("/api").handler(postApiRoutingHandler());
+    router.get("/simple").handler(getSimpleProxyHandler());
     server.requestHandler(router).listen(8888);
 
     startPromise.complete();
@@ -32,8 +36,29 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
 
   private Handler<RoutingContext> getSimpleProxyHandler() {
     return routingContext -> {
+      System.out.println("1");
+      WebClient client = WebClient.create((Vertx) vertx);
+      System.out.println("2");
 
+      client
+        .get(443, "yahoo.co.jp", "/")
+        .ssl(true)
+        .send(ar -> {
+          System.out.println("3");
+          if (ar.succeeded()) {
+            HttpResponse<Buffer> response = ar.result();
+            System.out.println(response.body().toString());
+            // build response body
+            HttpServerResponse proxyResponse = routingContext.response();
 
+            // Write to the response and end it
+            proxyResponse.end((io.vertx.core.buffer.Buffer) response.body());
+
+          } else {
+            // error
+            sendResponse(routingContext, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+          }
+        });
     };
   }
 

@@ -20,6 +20,9 @@ application {
   mainClassName = 'io.vertx.core.Launcher'
 }
 
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
 sourceCompatibility = '1.8'
 
 def mainVerticleName = 'jp.dressingroom.gameserver.apiguard.MainVerticle'
@@ -30,6 +33,8 @@ dependencies {
   implementation "io.vertx:vertx-web:$vertxVersion"
   implementation "io.vertx:vertx-dropwizard-metrics:$vertxVersion"
   implementation "io.vertx:vertx-redis-client:$vertxVersion"
+
+  compile "io.vertx:vertx-web-client:$vertxVersion"
 
   testImplementation "io.vertx:vertx-junit5:$vertxVersion"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
@@ -57,3 +62,5 @@ test {
 run {
   args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
 }
+
+tasks.withType(AbstractCompile)*.options*.encoding = tasks.withType(GroovyCompile)*.groovyOptions*.encoding = 'UTF-8'

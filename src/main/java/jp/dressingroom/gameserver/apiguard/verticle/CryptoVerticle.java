@@ -7,7 +7,9 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 
 import javax.crypto.*;
-import java.security.Key;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -21,11 +23,9 @@ public class CryptoVerticle extends AbstractVerticle {
   private Cipher decryptor;
   private Base64.Decoder base64decoder;
   private Base64.Encoder base64encoder;
-  KeyGenerator keyGenerator;
-  Key KEY;
 
-  String IV = "12345667890abcdefghijklmnopqrstuvwxyz";
-  String PSK = "YourPreSharedKeyMustChangeFromThisOne";
+  String IV =  "1234567890abcdef";
+  String PSK = "1234567890abcdef";
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
@@ -33,20 +33,17 @@ public class CryptoVerticle extends AbstractVerticle {
     eventBus.consumer(ApiguardEventBusNames.ENCRYPT.value(), getEncryptMessageHandler());
     eventBus.consumer(ApiguardEventBusNames.DECRYPT.value(), getDecryptMessageHandler());
 
+    System.out.println("IV getbytes length :" + IV.getBytes(StandardCharsets.US_ASCII).length);
 
-
-
+    IvParameterSpec iv = new IvParameterSpec(IV.getBytes(StandardCharsets.US_ASCII));
+    SecretKeySpec key = new SecretKeySpec(PSK.getBytes(StandardCharsets.US_ASCII), "AES");
     encryptor = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    encryptor.init(Cipher.ENCRYPT_MODE, KEY);
-
+    encryptor.init(Cipher.ENCRYPT_MODE, key, iv);
     decryptor = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    decryptor.init(Cipher.DECRYPT_MODE, KEY);
+    decryptor.init(Cipher.DECRYPT_MODE, key, iv);
 
     base64decoder = Base64.getDecoder();
     base64encoder = Base64.getEncoder();
-
-    keyGenerator = KeyGenerator.getInstance("AES");
-    SecretKey secretKey = keyGenerator.generateKey();
 
     startPromise.complete();
   }
@@ -54,18 +51,26 @@ public class CryptoVerticle extends AbstractVerticle {
   private Handler<Message<Object>> getDecryptMessageHandler() {
     // this is decrypter
     return messageHandler -> {
-      byte[] rawEncrypted = base64decoder.decode((byte[]) messageHandler.body());
-      try {
+      if (messageHandler.body().toString().length() > 0) {
+        System.out.println("request body length :" + messageHandler.body().toString().length());
+        System.out.println("request body :" + messageHandler.body());
 
-        byte[] decoded = decryptor.doFinal(rawEncrypted);
-        messageHandler.reply(decoded);
+        byte[] rawEncrypted = base64decoder.decode(messageHandler.body().toString().getBytes());
+        try {
 
-      } catch (IllegalBlockSizeException e) {
-        e.printStackTrace();
-        messageHandler.fail(1,"IllegalBlockSizeException");
-      } catch (BadPaddingException e) {
-        e.printStackTrace();
-        messageHandler.fail(1,"BadPaddingException");
+          byte[] decoded = decryptor.doFinal(rawEncrypted);
+          messageHandler.reply(decoded);
+
+        } catch (IllegalBlockSizeException e) {
+          e.printStackTrace();
+          messageHandler.fail(1,"IllegalBlockSizeException");
+        } catch (BadPaddingException e) {
+          e.printStackTrace();
+          messageHandler.fail(1,"BadPaddingException");
+        }
+
+      } else {
+        messageHandler.reply(null);
       }
     };
   }

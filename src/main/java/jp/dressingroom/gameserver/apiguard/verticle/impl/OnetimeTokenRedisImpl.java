@@ -12,11 +12,6 @@ public class OnetimeTokenRedisImpl implements OnetimeToken {
 
   }
 
-  // うーん、routingContextをもらえば全部出来るんだけど、それってただ「切り出しただけ」なんだよなーーー
-  // それでもいいっちゃいいんだけどなーー
-  // Promiseとかfutureを返すようにするべきなんかなー
-
-
 
   @Override
   public void registerResetNewTokenHandler(EventBus eventBus) {
