@@ -1,4 +1,4 @@
-package jp.dressingroom.apiguard.httpviewer.verticle;
+package jp.dressingroom.apiguard.httpresponder.verticle;
 
 import io.vertx.config.ConfigRetriever;
 import io.vertx.core.*;

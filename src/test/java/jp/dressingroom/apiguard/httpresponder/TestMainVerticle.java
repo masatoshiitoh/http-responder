@@ -1,4 +1,4 @@
-package jp.dressingroom.apiguard.httpviewer;
+package jp.dressingroom.apiguard.httpresponder;
 
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
