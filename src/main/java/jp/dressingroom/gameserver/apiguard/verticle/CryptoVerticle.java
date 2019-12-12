@@ -5,12 +5,12 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import jp.dressingroom.gameserver.apiguard.entity.RawMessage;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * handle encoded request payload.
@@ -21,8 +21,6 @@ import java.util.Base64;
 public class CryptoVerticle extends AbstractVerticle {
   private Cipher encryptor;
   private Cipher decryptor;
-  private Base64.Decoder base64decoder;
-  private Base64.Encoder base64encoder;
 
   String IV =  "1234567890abcdef";
   String PSK = "1234567890abcdef";
@@ -30,8 +28,8 @@ public class CryptoVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     EventBus eventBus = vertx.eventBus();
-    eventBus.consumer(ApiguardEventBusNames.ENCRYPT.value(), getEncryptMessageHandler());
-    eventBus.consumer(ApiguardEventBusNames.DECRYPT.value(), getDecryptMessageHandler());
+    eventBus.consumer(ApiguardEventBusNames.ENCRYPT.value(), encryptMessageHandler());
+    eventBus.consumer(ApiguardEventBusNames.DECRYPT.value(), decryptMessageHandler());
 
     System.out.println("IV getbytes length :" + IV.getBytes(StandardCharsets.US_ASCII).length);
 
@@ -42,59 +40,33 @@ public class CryptoVerticle extends AbstractVerticle {
     decryptor = Cipher.getInstance("AES/CBC/PKCS5Padding");
     decryptor.init(Cipher.DECRYPT_MODE, key, iv);
 
-    base64decoder = Base64.getDecoder();
-    base64encoder = Base64.getEncoder();
-
     startPromise.complete();
   }
 
-  private Handler<Message<Object>> getDecryptMessageHandler() {
+  private Handler<Message<RawMessage>> decryptMessageHandler() {
     // this is decrypter
     return messageHandler -> {
-      if (messageHandler.body().toString().length() > 0) {
-        System.out.println("request body length :" + messageHandler.body().toString().length());
-        System.out.println("request body :" + messageHandler.body());
-
-        byte[] rawEncrypted = base64decoder.decode(messageHandler.body().toString().getBytes());
-        try {
-
-          byte[] decoded = decryptor.doFinal(rawEncrypted);
-          messageHandler.reply(decoded);
-
-        } catch (IllegalBlockSizeException e) {
-          e.printStackTrace();
-          messageHandler.fail(1,"IllegalBlockSizeException");
-        } catch (BadPaddingException e) {
-          e.printStackTrace();
-          messageHandler.fail(1,"BadPaddingException");
-        }
-
-      } else {
-        messageHandler.reply(null);
-      }
+      cryptWork(decryptor, messageHandler.body(), messageHandler);
     };
   }
 
-  private Handler<Message<Object>> getEncryptMessageHandler() {
+  private Handler<Message<RawMessage>> encryptMessageHandler() {
     // this is encrypter
     return messageHandler -> {
-      Object rawOriginalPayload = messageHandler.body();
-      byte[] rawEncrypted = new byte[0];
-      try {
-
-        rawEncrypted = encryptor.doFinal((byte[]) rawOriginalPayload);
-        String base64Encoded = base64encoder.encodeToString(rawEncrypted);
-        messageHandler.reply(base64Encoded);
-
-      } catch (IllegalBlockSizeException e) {
-        e.printStackTrace();
-        messageHandler.fail(1,"IllegalBlockSizeException");
-      } catch (BadPaddingException e) {
-        e.printStackTrace();
-        messageHandler.fail(1,"BadPaddingException");
-      }
+      cryptWork(encryptor, messageHandler.body(), messageHandler);
     };
   }
 
-
+  private void cryptWork(Cipher cipher, RawMessage rawMessage, Message<RawMessage> message) {
+    try {
+      byte[] rb = cipher.doFinal(rawMessage.getValue());
+      message.reply(new RawMessage(rb));
+    } catch (IllegalBlockSizeException e) {
+      e.printStackTrace();
+      message.fail(1,"IllegalBlockSizeException");
+    } catch (BadPaddingException e) {
+      e.printStackTrace();
+      message.fail(1,"BadPaddingException");
+    }
+  }
 }
