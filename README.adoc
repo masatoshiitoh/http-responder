@@ -32,6 +32,12 @@ Java JRE (11.0~)
 
 == How to try
 
+set listening port with environemt variable "port"
+
+ex.
+[source]
+port=8888 ./gradlew run
+
 
 == Building
 
