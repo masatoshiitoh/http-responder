@@ -20,7 +20,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     ConfigRetriever configRetriever = ConfigRetriever.create(vertx);
     configRetriever.getConfig(json -> {
       JsonObject result = json.result();
-      Integer port = result.getInteger("port");
+      Integer port = result.getInteger("server.port");
       br = result.getString("line.separator");
 
       HttpServer server = vertx.createHttpServer();

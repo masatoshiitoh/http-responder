@@ -12,8 +12,6 @@ Connection: keep-alive
 Content-Length: 20
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
 Cache-Control: no-cache
-Origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
-Postman-Token: be93eb15-500d-2930-dfbb-a80489593a89
 Content-Type: text/plain;charset=UTF-8
 Accept: */*
 Sec-Fetch-Site: cross-site
@@ -32,26 +30,26 @@ Java JRE (11.0~)
 
 == How to try
 
-set listening port with environemt variable "port"
+set listening port with environemt variable "server.port"
 
 ex.
 [source]
-port=8888 ./gradlew run
+$ server.port=8888 ./gradlew run
 
 
 == Building
 
 To launch your tests:
 ```
-./gradlew clean test
+$ ./gradlew clean test
 ```
 
 To package your application:
 ```
-./gradlew clean assemble
+$ ./gradlew clean assemble
 ```
 
 To run your application:
 ```
-./gradlew clean run
+$ ./gradlew clean run
 ```
