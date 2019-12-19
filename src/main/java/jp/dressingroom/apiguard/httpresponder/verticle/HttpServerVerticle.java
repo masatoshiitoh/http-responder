@@ -25,9 +25,18 @@ public class HttpServerVerticle extends AbstractVerticle {
 
       HttpServer server = vertx.createHttpServer();
       Router router = Router.router(vertx);
-      Route route = router.route();
+      // test
+      router.get("/hello").handler(goba -> {
+        sendResponse(goba, HttpStatusCodes.OK, "Hello");
+      });
+      router.post("/hello").handler(goba -> {
+        goba.request().bodyHandler(body -> {
+          sendResponse(goba, HttpStatusCodes.OK, new String(body.getBytes()));
+        });
+      });
 
-      // route catches all methods and paths.
+      // Catch all - methods and paths.
+      Route route = router.route();
       route.handler(bodiedProxyHandler());
       server.requestHandler(router).listen(port);
 
@@ -51,21 +60,10 @@ public class HttpServerVerticle extends AbstractVerticle {
     };
   }
 
-  /**
-   * send response to requester with status
-   *
-   * @param routingContext
-   * @param status
-   */
   private void sendResponse(RoutingContext routingContext, HttpStatusCodes status) {
     sendResponse(routingContext, status, null);
   }
 
-  /**
-   * @param routingContext
-   * @param status
-   * @param message
-   */
   private void sendResponse(RoutingContext routingContext, HttpStatusCodes status, String message) {
     HttpServerResponse response = routingContext.response();
     response.setStatusCode(status.value());
