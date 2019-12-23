@@ -2,6 +2,7 @@ plugins {
   id 'java'
   id 'application'
   id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'maven'
 }
 
 group = 'jp.dressingroom.apiguard'
@@ -25,7 +26,7 @@ compileTestJava.options.encoding = 'UTF-8'
 
 sourceCompatibility = '1.8'
 
-def mainVerticleName = 'jp.dressingroom.apiguard.httpresponder.MainVerticle'
+def mainVerticleName = 'jp.dressingroom.apiguard.httpresponder.HttpResponderMainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 
@@ -65,3 +66,30 @@ run {
 }
 
 tasks.withType(AbstractCompile)*.options*.encoding = tasks.withType(GroovyCompile)*.groovyOptions*.encoding = 'UTF-8'
+
+// MavenRepository identity setting リポジトリの設定。これらは当然、読み込み時に使用する
+// group = 'com.kissaki.sample'	//グループ
+archivesBaseName = 'Mavenrepobygradle' 	//アーカイブベース
+// version = '0.0.1'		//バージョン
+
+uploadArchives {//アーカイブに際して、Maven形式で、どこに出力するかを指定する箇所
+  repositories {
+    mavenDeployer {
+      repository(url: "file:${projectDir}")
+    }
+  }
+}
+
+[install.repositories.mavenInstaller, uploadArchives.repositories.mavenDeployer]*.pom*.whenConfigured { pom ->
+  pom.project {
+    inceptionYear '2019'
+    packaging 'jar'
+    licenses {
+      license {
+        name 'The Apache Software License, Version 2.0'
+        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        distribution 'repo'
+      }
+    }
+  }
+}
