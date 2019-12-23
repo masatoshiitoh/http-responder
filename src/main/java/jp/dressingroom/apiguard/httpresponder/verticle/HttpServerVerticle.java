@@ -26,6 +26,10 @@ public class HttpServerVerticle extends AbstractVerticle {
       HttpServer server = vertx.createHttpServer();
       Router router = Router.router(vertx);
       // test
+      router.get("/500").handler(goba -> {sendResponse(goba, HttpStatusCodes.INTERNAL_SERVER_ERROR);});
+      router.post("/500").handler(goba -> {sendResponse(goba, HttpStatusCodes.INTERNAL_SERVER_ERROR);});
+      router.get("/404").handler(goba -> {sendResponse(goba, HttpStatusCodes.NOT_FOUND);});
+      router.post("/404").handler(goba -> {sendResponse(goba, HttpStatusCodes.NOT_FOUND);});
       router.get("/hello").handler(goba -> {
         sendResponse(goba, HttpStatusCodes.OK, "Hello");
       });
