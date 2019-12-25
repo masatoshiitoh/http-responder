@@ -71,6 +71,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void sendResponse(RoutingContext routingContext, HttpStatusCodes status, String message) {
     HttpServerResponse response = routingContext.response();
     response.setStatusCode(status.value());
+    response.headers().add("HttpResponder", "true");
     if (message == null) {
       response.end();
     } else {

@@ -68,12 +68,9 @@ run {
 
 tasks.withType(AbstractCompile)*.options*.encoding = tasks.withType(GroovyCompile)*.groovyOptions*.encoding = 'UTF-8'
 
-// MavenRepository identity setting リポジトリの設定。これらは当然、読み込み時に使用する
-// group = 'com.kissaki.sample'	//グループ
-archivesBaseName = 'Mavenrepobygradle' 	//アーカイブベース
-// version = '0.0.1'		//バージョン
+archivesBaseName = 'Mavenrepobygradle'
 
-uploadArchives {//アーカイブに際して、Maven形式で、どこに出力するかを指定する箇所
+uploadArchives {
   repositories {
     mavenDeployer {
       repository(url: "file:${projectDir}")
