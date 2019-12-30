@@ -179,8 +179,6 @@ public class TestHttpResponderMainVerticle {
             assertTrue(counter2 > counter1, "counter did not incrementd.  counter1 is " + counter1 + " coutner2 is " + counter2);
             testContext.completeNow();
           })));
-
-
       })));
   }
 }
