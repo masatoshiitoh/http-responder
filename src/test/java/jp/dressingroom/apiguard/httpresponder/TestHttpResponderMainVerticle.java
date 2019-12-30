@@ -162,5 +162,25 @@ public class TestHttpResponderMainVerticle {
       })));
   }
 
+  @Test
+  void httpResponderGetCounterResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
+    WebClient client = WebClient.create(vertx);
 
+    client.request(HttpMethod.GET, 18888, "localhost", "/counter")
+      .as(BodyCodec.string())
+      .send(testContext.succeeding(response -> testContext.verify(() -> {
+        assertTrue(response.statusCode() == 200);
+        long counter1 = Long.parseLong(response.body());
+        client.request(HttpMethod.GET, 18888, "localhost", "/counter")
+          .as(BodyCodec.string())
+          .send(testContext.succeeding(secondCall -> testContext.verify(() -> {
+            assertTrue(secondCall.statusCode() == 200);
+            long counter2 = Long.parseLong(secondCall.body());
+            assertTrue(counter2 > counter1, "counter did not incrementd.  counter1 is " + counter1 + " coutner2 is " + counter2);
+            testContext.completeNow();
+          })));
+
+
+      })));
+  }
 }

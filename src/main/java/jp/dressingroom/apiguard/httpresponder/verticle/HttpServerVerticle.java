@@ -5,6 +5,7 @@ import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.shareddata.Counter;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -29,6 +30,19 @@ public class HttpServerVerticle extends AbstractVerticle {
       router.route("/500").handler(goba -> {sendResponse(goba, HttpStatusCodes.INTERNAL_SERVER_ERROR);});
       router.route("/400").handler(goba -> {sendResponse(goba, HttpStatusCodes.BAD_REQUEST);});
       router.route("/404").handler(goba -> {sendResponse(goba, HttpStatusCodes.NOT_FOUND);});
+      router.route("/counter").handler(goba -> {
+        vertx.sharedData().getCounter("httpResponderCounter", counterAsyncResult -> {
+          if (counterAsyncResult.succeeded()) {
+            Counter counter = counterAsyncResult.result();
+            counter.incrementAndGet( increments -> {
+              if (increments.succeeded()) {
+                Long count = increments.result();
+                sendResponse(goba, HttpStatusCodes.OK, count.toString());
+              }
+            });
+          }
+        });
+      });
 
       router.get("/hello").handler(goba -> {
         sendResponse(goba, HttpStatusCodes.OK, "Hello");
