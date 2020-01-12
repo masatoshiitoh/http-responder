@@ -23,7 +23,7 @@ public class TestHttpResponderMainVerticle {
 
   @BeforeAll
   static void initPort() {
-    nextPort = 8000;
+    nextPort = 18000;
   }
 
   static int getPort() {
