@@ -7,6 +7,7 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,11 +17,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(VertxExtension.class)
 public class TestHttpResponderMainVerticle {
 
+  static int nextPort;
+
+  int responderPort;
+
+  @BeforeAll
+  static void initPort() {
+    nextPort = 8000;
+  }
+
+  static int getPort() {
+    return nextPort ++;
+  }
+
+
   @BeforeEach
   void deployVerticle(Vertx vertx, VertxTestContext testContext) {
-    System.setProperty("server.port", "18888");
+    responderPort = getPort();
+    System.setProperty("server.port", String.valueOf(responderPort));
 
-    vertx.deployVerticle(new HttpResponderMainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
+    vertx.deployVerticle(new HttpResponderMainVerticle(), r1 -> {
+      if (r1.succeeded()) {
+        testContext.completeNow();
+      } else {
+        testContext.failNow(new Exception());
+      }
+    });
   }
 
   @Test
@@ -31,7 +53,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderGetHelloResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.get(18888, "localhost", "/hello")
+    client.get(responderPort, "localhost", "/hello")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 200);
@@ -44,7 +66,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderPostHelloResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.post(18888, "localhost", "/hello")
+    client.post(responderPort, "localhost", "/hello")
       .as(BodyCodec.string())
       .sendBuffer(Buffer.buffer("some payload"),
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -58,7 +80,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderPostSomePathResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.post(18888, "localhost", "/test/path")
+    client.post(responderPort, "localhost", "/test/path")
       .as(BodyCodec.string())
       .sendBuffer(Buffer.buffer("some payload"),
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -71,7 +93,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderGetSomePathResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.get(18888, "localhost", "/test/path")
+    client.get(responderPort, "localhost", "/test/path")
       .as(BodyCodec.string())
       .send(
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -84,7 +106,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderGet404Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.get(18888, "localhost", "/404")
+    client.get(responderPort, "localhost", "/404")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 404);
@@ -95,7 +117,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderGet500Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.get(18888, "localhost", "/500")
+    client.get(responderPort, "localhost", "/500")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 500);
@@ -106,7 +128,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderPost404Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.post(18888, "localhost", "/404")
+    client.post(responderPort, "localhost", "/404")
       .as(BodyCodec.string())
       .sendBuffer(Buffer.buffer("some payload"),
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -118,7 +140,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderPost500Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.post(18888, "localhost", "/500")
+    client.post(responderPort, "localhost", "/500")
       .as(BodyCodec.string())
       .sendBuffer(Buffer.buffer("some payload"),
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -130,7 +152,7 @@ public class TestHttpResponderMainVerticle {
   @Test
   void httpResponderOptionSomePathResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
-    client.request(HttpMethod.OPTIONS, 18888, "localhost", "/test/path")
+    client.request(HttpMethod.OPTIONS, responderPort, "localhost", "/test/path")
       .as(BodyCodec.string())
       .send(
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -143,7 +165,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderOption404Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.request(HttpMethod.OPTIONS, 18888, "localhost", "/404")
+    client.request(HttpMethod.OPTIONS, responderPort, "localhost", "/404")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 404);
@@ -154,7 +176,7 @@ public class TestHttpResponderMainVerticle {
   void httpResponderOption500Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.request(HttpMethod.OPTIONS, 18888, "localhost", "/500")
+    client.request(HttpMethod.OPTIONS, responderPort, "localhost", "/500")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 500);
@@ -166,12 +188,12 @@ public class TestHttpResponderMainVerticle {
   void httpResponderGetCounterResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.request(HttpMethod.GET, 18888, "localhost", "/counter")
+    client.request(HttpMethod.GET, responderPort, "localhost", "/counter")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 200);
         long counter1 = Long.parseLong(response.body());
-        client.request(HttpMethod.GET, 18888, "localhost", "/counter")
+        client.request(HttpMethod.GET, responderPort, "localhost", "/counter")
           .as(BodyCodec.string())
           .send(testContext.succeeding(secondCall -> testContext.verify(() -> {
             assertTrue(secondCall.statusCode() == 200);
