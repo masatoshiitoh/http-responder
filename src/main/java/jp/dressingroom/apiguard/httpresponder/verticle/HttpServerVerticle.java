@@ -20,45 +20,54 @@ public class HttpServerVerticle extends AbstractVerticle {
   public void start(Promise<Void> startPromise) throws Exception {
     ConfigRetriever configRetriever = ConfigRetriever.create(vertx);
     configRetriever.getConfig(json -> {
-      JsonObject result = json.result();
-      Integer port = result.getInteger("server.port");
-      br = result.getString("line.separator");
+      if (json.succeeded()) {
+        JsonObject result = json.result();
+        Integer port = result.getInteger("server.port");
+        br = result.getString("line.separator");
 
-      HttpServer server = vertx.createHttpServer();
-      Router router = Router.router(vertx);
+        HttpServer server = vertx.createHttpServer();
+        Router router = Router.router(vertx);
 
-      router.route("/500").handler(goba -> {sendResponse(goba, HttpStatusCodes.INTERNAL_SERVER_ERROR);});
-      router.route("/400").handler(goba -> {sendResponse(goba, HttpStatusCodes.BAD_REQUEST);});
-      router.route("/404").handler(goba -> {sendResponse(goba, HttpStatusCodes.NOT_FOUND);});
-      router.route("/counter").handler(goba -> {
-        vertx.sharedData().getCounter("httpResponderCounter", counterAsyncResult -> {
-          if (counterAsyncResult.succeeded()) {
-            Counter counter = counterAsyncResult.result();
-            counter.incrementAndGet( increments -> {
-              if (increments.succeeded()) {
-                Long count = increments.result();
-                sendResponse(goba, HttpStatusCodes.OK, count.toString());
-              }
-            });
-          }
+        router.route("/500").handler(goba -> {
+          sendResponse(goba, HttpStatusCodes.INTERNAL_SERVER_ERROR);
         });
-      });
-
-      router.get("/hello").handler(goba -> {
-        sendResponse(goba, HttpStatusCodes.OK, "Hello");
-      });
-      router.post("/hello").handler(goba -> {
-        goba.request().bodyHandler(body -> {
-          sendResponse(goba, HttpStatusCodes.OK, new String(body.getBytes()));
+        router.route("/400").handler(goba -> {
+          sendResponse(goba, HttpStatusCodes.BAD_REQUEST);
         });
-      });
+        router.route("/404").handler(goba -> {
+          sendResponse(goba, HttpStatusCodes.NOT_FOUND);
+        });
+        router.route("/counter").handler(goba -> {
+          vertx.sharedData().getCounter("httpResponderCounter", counterAsyncResult -> {
+            if (counterAsyncResult.succeeded()) {
+              Counter counter = counterAsyncResult.result();
+              counter.incrementAndGet(increments -> {
+                if (increments.succeeded()) {
+                  Long count = increments.result();
+                  sendResponse(goba, HttpStatusCodes.OK, count.toString());
+                }
+              });
+            }
+          });
+        });
 
-      // Catch all - methods and paths.
-      Route route = router.route();
-      route.handler(bodiedProxyHandler());
-      server.requestHandler(router).listen(port);
+        router.get("/hello").handler(goba -> {
+          sendResponse(goba, HttpStatusCodes.OK, "Hello");
+        });
+        router.post("/hello").handler(goba -> {
+          goba.request().bodyHandler(body -> {
+            sendResponse(goba, HttpStatusCodes.OK, new String(body.getBytes()));
+          });
+        });
 
-      startPromise.complete();
+        // Catch all - methods and paths.
+        router.route().handler(bodiedProxyHandler());
+        server.requestHandler(router).listen(port);
+
+        startPromise.complete();
+      } else {
+        startPromise.fail("configuration not found");
+      }
     });
   }
 

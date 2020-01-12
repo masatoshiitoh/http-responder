@@ -27,7 +27,7 @@ public class TestHttpResponderMainVerticle {
   }
 
   static int getPort() {
-    return nextPort ++;
+    return nextPort++;
   }
 
 
@@ -49,6 +49,7 @@ public class TestHttpResponderMainVerticle {
   void verticleDeployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
     testContext.completeNow();
   }
+
   @Test
   void httpResponderGetHelloResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -70,10 +71,10 @@ public class TestHttpResponderMainVerticle {
       .as(BodyCodec.string())
       .sendBuffer(Buffer.buffer("some payload"),
         testContext.succeeding(response -> testContext.verify(() -> {
-        assertTrue(response.statusCode() == 200);
-        assertTrue(response.body().equals("some payload"));
-        testContext.completeNow();
-      })));
+          assertTrue(response.statusCode() == 200);
+          assertTrue(response.body().equals("some payload"));
+          testContext.completeNow();
+        })));
   }
 
   @Test
@@ -89,6 +90,7 @@ public class TestHttpResponderMainVerticle {
           testContext.completeNow();
         })));
   }
+
   @Test
   void httpResponderGetSomePathResponse(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -102,6 +104,7 @@ public class TestHttpResponderMainVerticle {
           testContext.completeNow();
         })));
   }
+
   @Test
   void httpResponderGet404Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -113,6 +116,7 @@ public class TestHttpResponderMainVerticle {
         testContext.completeNow();
       })));
   }
+
   @Test
   void httpResponderGet500Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -124,6 +128,7 @@ public class TestHttpResponderMainVerticle {
         testContext.completeNow();
       })));
   }
+
   @Test
   void httpResponderPost404Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -136,6 +141,7 @@ public class TestHttpResponderMainVerticle {
           testContext.completeNow();
         })));
   }
+
   @Test
   void httpResponderPost500Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -161,6 +167,7 @@ public class TestHttpResponderMainVerticle {
           testContext.completeNow();
         })));
   }
+
   @Test
   void httpResponderOption404Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
@@ -172,6 +179,7 @@ public class TestHttpResponderMainVerticle {
         testContext.completeNow();
       })));
   }
+
   @Test
   void httpResponderOption500Response(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
