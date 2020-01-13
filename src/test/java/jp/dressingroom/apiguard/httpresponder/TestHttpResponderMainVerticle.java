@@ -36,13 +36,7 @@ public class TestHttpResponderMainVerticle {
     responderPort = getPort();
     System.setProperty("server.port", String.valueOf(responderPort));
 
-    vertx.deployVerticle(new HttpResponderMainVerticle(), r1 -> {
-      if (r1.succeeded()) {
-        testContext.completeNow();
-      } else {
-        testContext.failNow(new Exception());
-      }
-    });
+    vertx.deployVerticle(new HttpResponderMainVerticle(), testContext.completing());
   }
 
   @Test
