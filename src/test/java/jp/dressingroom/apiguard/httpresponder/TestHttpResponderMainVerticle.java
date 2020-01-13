@@ -16,32 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(VertxExtension.class)
 public class TestHttpResponderMainVerticle {
-
-  static int nextPort;
-
-  int responderPort;
+  static int responderPort = 18000;
 
   @BeforeAll
-  static void initPort() {
-    nextPort = 18000;
-  }
-
-  static int getPort() {
-    return nextPort++;
-  }
-
-
-  @BeforeEach
-  void deployVerticle(Vertx vertx, VertxTestContext testContext) {
-    responderPort = getPort();
+  static void deployVerticle(Vertx vertx, VertxTestContext testContext) {
     System.setProperty("server.port", String.valueOf(responderPort));
 
     vertx.deployVerticle(new HttpResponderMainVerticle(), testContext.completing());
-  }
-
-  @Test
-  void verticleDeployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
-    testContext.completeNow();
   }
 
   @Test
